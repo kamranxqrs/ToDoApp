@@ -11,7 +11,7 @@ Tech Stack
 | Layer       | Technology            |
 |-------------|-----------------------|
 | Backend     | Java, Spring Boot     |
-| Frontend    | HTML, CSS, JavaScript |
+| Frontend    | HTML, CSS |
 | Database    | H2 (in-memory DB)     |
 | Tools       | VS Code, Git, GitHub  |
 
