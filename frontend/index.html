@@ -1,62 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>To-Do App</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    input, button { padding: 8px; margin: 5px; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: 10px; }
-  </style>
-</head>
-<body>
-  <h2>To-Do List</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <title>To-Do App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#4f46e5',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
 
-  <input type="text" id="taskInput" placeholder="Enter task" />
-  <button onclick="addTask()">Add</button>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-2xl rounded-xl p-8 max-w-md w-full">
+      <h2 class="text-3xl font-bold text-center text-primary mb-6">To-Do List</h2>
 
-  <ul id="taskList"></ul>
+      <div class="flex gap-2 mb-6">
+        <input
+          id="taskInput"
+          type="text"
+          placeholder="Enter a new task"
+          class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <button
+          onclick="addTask()"
+          class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow transition duration-200"
+        >
+          Add
+        </button>
+      </div>
 
-  <script>
-    const API = 'http://localhost:8080/tasks';
+      <ul id="taskList" class="space-y-2"></ul>
+    </div>
 
-    async function fetchTasks() {
-      const res = await fetch(API);
-      const tasks = await res.json();
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.textContent = task.title;
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.onclick = () => deleteTask(task.id);
-        li.appendChild(delBtn);
-        list.appendChild(li);
-      });
-    }
+    <script>
+  const API = 'http://localhost:8080/tasks';
 
-    async function addTask() {
-      const input = document.getElementById('taskInput');
-      const title = input.value.trim();
-      if (title === '') return;
-      await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, completed: false })
-      });
-      input.value = '';
-      fetchTasks();
-    }
+  async function fetchTasks() {
+    const res = await fetch(API);
+    const tasks = await res.json();
+    const list = document.getElementById('taskList');
+    list.innerHTML = '';
 
-    async function deleteTask(id) {
-      await fetch(`${API}/${id}`, { method: 'DELETE' });
-      fetchTasks();
-    }
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.className = "flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg shadow-sm";
 
-    fetchTasks(); // load on start
-  </script>
-</body>
+      const leftSection = document.createElement('div');
+      leftSection.className = "flex items-center gap-2";
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = task.completed;
+      checkbox.className = "w-4 h-4 accent-primary";
+      checkbox.onchange = () => toggleTask(task.id, !task.completed);
+
+      const span = document.createElement('span');
+      span.textContent = task.title;
+      span.className = task.completed ? "line-through text-gray-400" : "text-gray-800";
+
+      leftSection.appendChild(checkbox);
+      leftSection.appendChild(span);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.className = "text-red-600 hover:underline";
+      delBtn.onclick = () => deleteTask(task.id);
+
+      li.appendChild(leftSection);
+      li.appendChild(delBtn);
+      list.appendChild(li);
+    });
+  }
+
+  async function addTask() {
+    const input = document.getElementById('taskInput');
+    const title = input.value.trim();
+    if (title === '') return;
+    await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, completed: false })
+    });
+    input.value = '';
+    fetchTasks();
+  }
+
+  async function deleteTask(id) {
+    await fetch(`${API}/${id}`, { method: 'DELETE' });
+    fetchTasks();
+  }
+
+  async function toggleTask(id, newStatus) {
+    await fetch(`${API}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: newStatus })
+    });
+    fetchTasks();
+  }
+
+  fetchTasks(); 
+</script>
+
+  </body>
 </html>
