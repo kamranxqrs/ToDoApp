@@ -38,7 +38,29 @@ An interactive To-Do application built using **Java Spring Boot** for the backen
 ---
 
 ### Screenshots
+### Empty List
+![Empty List](screenshots/Empty-List.png.png)
 
+### Some Tasks
+![Some Tasks](screenshots/Some-Tasks.png.png)
+
+### Dark Mode
+![Dark Mode](screenshots/Dark-Mode.png.png)
+
+### Add Task
+![Add Task](screenshots/Add-Task.png.png)
+
+### Completed Task
+![Completed Task](screenshots/Completed-Task.png.png)
+
+### Edit Task
+![Edit Task](screenshots/Edit-Task.png.png)
+
+### Filter Pending Tasks
+![Filter Pending](screenshots/Pending-Filter.png.png)
+
+### Filter Completed Tasks
+![Filter Completed](screenshots/Completed-Filter.png.png)
 
 ---
 
