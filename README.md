@@ -36,34 +36,10 @@ An interactive To-Do application built using **Java Spring Boot** for the backen
 - Works well on both desktop and mobile screens.
 
 ---
-### **Screenshots**
+
 ### Screenshots
 
-**Empty List View**  
-![Empty List](screenshots<img width="530" height="347" alt="Empty-list" src="https://github.com/user-attachments/assets/6b6696db-83b3-46ca-89b0-622d857d1f24" />)
 
-**With Tasks**  
-![With Tasks](screenshots/<img width="507" height="538" alt="Tasks List" src="https://github.com/user-attachments/assets/999300be-9321-467c-bf9f-3e8422e94754" />
-)
-
-**Dark Mode**  
-![Dark Mode](screenshots/<img width="514" height="543" alt="Dark Mode" src="https://github.com/user-attachments/assets/b25d1868-8091-4c64-abcb-36200b850827" />
-)
-
-**Adding a Task**  
-![Add Task](screenshots/<img width="507" height="536" alt="Add Task" src="https://github.com/user-attachments/assets/6d3e14ec-5aaf-41f2-a254-d3fb7dc0be6e" />)
-
-**Completed Task**  
-![Completed Task](screenshots/<img width="505" height="619" alt="Completed Tasks" src="https://github.com/user-attachments/assets/8b68a619-28bc-4e53-bb69-7b493ef2304f" />)
-
-**Editing a Task**  
-![Edit Task](screenshots/<img width="502" height="630" alt="Edit Tasks" src="https://github.com/user-attachments/assets/6b104849-a0b6-4a05-b9af-19ff6957e356" />)
-
-**Filter Pending Tasks**  
-![Filter Pending](screenshots/<img width="510" height="446" alt="Filter-Pending" src="https://github.com/user-attachments/assets/de4a7597-1da7-47de-af51-4806a3e2aa64" />)
-
-**Filter Completed Tasks**  
-![Filter Completed](screenshots/<img width="505" height="447" alt="Filter-Completed" src="https://github.com/user-attachments/assets/153dca6d-6c29-40b9-aab7-3256ba87f7c1" />)
 ---
 
 ## Tech Stack
