@@ -1,113 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do App</title>
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configure Tailwind dark mode to use 'class' -->
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#4f46e5',
-            },
-          },
-        },
-      };
+        tailwind.config = {
+            darkMode: 'class'
+        }
     </script>
-  </head>
 
-  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-2xl rounded-xl p-8 max-w-md w-full">
-      <h2 class="text-3xl font-bold text-center text-primary mb-6">To-Do List</h2>
+    <style>
+        /* Toggle Switch for marking tasks complete */
+        .toggle {
+            width: 40px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .toggle::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+        .toggle.active {
+            background: #22c55e;
+        }
+        .toggle.active::after {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex justify-center items-center min-h-screen transition-colors duration-300">
 
-      <div class="flex gap-2 mb-6">
-        <input
-          id="taskInput"
-          type="text"
-          placeholder="Enter a new task"
-          class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-        <button
-          onclick="addTask()"
-          class="bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow transition duration-200"
-        >
-          Add
-        </button>
-      </div>
+    <!-- Main container -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-[400px] transition-colors duration-300">
 
-      <ul id="taskList" class="space-y-2"></ul>
+        <!-- Header with Dark Mode Toggle -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">To-Do App</h1>
+            <button id="dark-mode-toggle" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">🌙</button>
+        </div>
+
+        <!-- Add new task -->
+        <div class="flex mb-5">
+            <input id="task-input" type="text" placeholder="Enter new task"
+                class="border p-3 flex-grow rounded-l-xl focus:outline-none focus:ring-2 focus:ring-green-400 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            <button onclick="addTask()" class="bg-green-500 text-white px-5 rounded-r-xl hover:bg-green-600">Add</button>
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="flex justify-center space-x-3 mb-5">
+            <button onclick="setFilter('all', event)" class="filter-btn bg-green-500 text-white px-4 py-1 rounded">All</button>
+            <button onclick="setFilter('completed', event)" class="filter-btn bg-gray-200 dark:bg-gray-700 px-4 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Completed</button>
+            <button onclick="setFilter('pending', event)" class="filter-btn bg-gray-200 dark:bg-gray-700 px-4 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Pending</button>
+        </div>
+
+        <!-- Task list container -->
+        <div id="task-list" class="space-y-3"></div>
     </div>
 
     <script>
-  const API = 'http://localhost:8080/tasks';
+        const API_URL = "http://localhost:8080/tasks";
+        let currentFilter = 'all';
 
-  async function fetchTasks() {
-    const res = await fetch(API);
-    const tasks = await res.json();
-    const list = document.getElementById('taskList');
-    list.innerHTML = '';
+        // Initialize app
+        document.addEventListener("DOMContentLoaded", () => {
+            loadTasks();
+            initDarkMode();
+        });
 
-    tasks.forEach(task => {
-      const li = document.createElement('li');
-      li.className = "flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg shadow-sm";
+        // Fetch and display tasks
+        async function loadTasks() {
+            const response = await fetch(API_URL);
+            const tasks = await response.json();
+            const taskList = document.getElementById("task-list");
+            taskList.innerHTML = "";
 
-      const leftSection = document.createElement('div');
-      leftSection.className = "flex items-center gap-2";
+            // Apply current filter
+            let filteredTasks = tasks;
+            if (currentFilter === 'completed') filteredTasks = tasks.filter(t => t.completed);
+            else if (currentFilter === 'pending') filteredTasks = tasks.filter(t => !t.completed);
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = task.completed;
-      checkbox.className = "w-4 h-4 accent-primary";
-      checkbox.onchange = () => toggleTask(task.id, !task.completed);
+            filteredTasks.forEach(task => {
+                taskList.innerHTML += `
+                <div id="task-${task.id}" class="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded-lg shadow-sm transition">
+                    <div class="flex items-center space-x-3">
+                        <div class="toggle ${task.completed ? 'active' : ''}" onclick="toggleComplete(${task.id}, '${task.title}', ${task.completed})"></div>
+                        <span class="task-title ${task.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-white'}">${task.title}</span>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="startEdit(${task.id}, '${task.title}')"
+                            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Edit</button>
+                        <button onclick="deleteTask(${task.id})"
+                            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
+                    </div>
+                </div>`;
+            });
+        }
 
-      const span = document.createElement('span');
-      span.textContent = task.title;
-      span.className = task.completed ? "line-through text-gray-400" : "text-gray-800";
+        // Switch between filters
+        function setFilter(filter, event) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('bg-green-500', 'text-white'));
+            event.target.classList.add('bg-green-500', 'text-white');
+            loadTasks();
+        }
 
-      leftSection.appendChild(checkbox);
-      leftSection.appendChild(span);
+        // Add new task
+        async function addTask() {
+            const input = document.getElementById("task-input");
+            const title = input.value.trim();
+            if (!title) return;
+            await fetch(API_URL, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({title, completed:false}) });
+            input.value = "";
+            loadTasks();
+        }
 
-      const delBtn = document.createElement('button');
-      delBtn.textContent = 'Delete';
-      delBtn.className = "text-red-600 hover:underline";
-      delBtn.onclick = () => deleteTask(task.id);
+        // Delete a task
+        async function deleteTask(id) {
+            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+            loadTasks();
+        }
 
-      li.appendChild(leftSection);
-      li.appendChild(delBtn);
-      list.appendChild(li);
-    });
-  }
+        // Start editing a task
+        function startEdit(id, oldTitle) {
+            const taskDiv = document.getElementById(`task-${id}`);
+            taskDiv.innerHTML = `
+                <div class="flex w-full">
+                    <input type="text" id="edit-input-${id}" value="${oldTitle}"
+                        class="border p-2 flex-grow rounded-l focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <button onclick="saveEdit(${id})" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Save</button>
+                    <button onclick="loadTasks()" class="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500">Cancel</button>
+                </div>`;
+        }
 
-  async function addTask() {
-    const input = document.getElementById('taskInput');
-    const title = input.value.trim();
-    if (title === '') return;
-    await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, completed: false })
-    });
-    input.value = '';
-    fetchTasks();
-  }
+        // Save edited task
+        async function saveEdit(id) {
+            const newTitle = document.getElementById(`edit-input-${id}`).value.trim();
+            if (!newTitle) return;
+            await fetch(`${API_URL}/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({title:newTitle, completed:false}) });
+            loadTasks();
+        }
 
-  async function deleteTask(id) {
-    await fetch(`${API}/${id}`, { method: 'DELETE' });
-    fetchTasks();
-  }
+        // Toggle task completion
+        async function toggleComplete(id, title, completed) {
+            await fetch(`${API_URL}/${id}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({title, completed:!completed}) });
+            loadTasks();
+        }
 
-  async function toggleTask(id, newStatus) {
-    await fetch(`${API}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: newStatus })
-    });
-    fetchTasks();
-  }
+        // Dark mode logic
+        function initDarkMode() {
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById("dark-mode-toggle");
 
-  fetchTasks(); 
-</script>
+            // Apply saved theme or default
+            if(localStorage.getItem("theme") === "dark") html.classList.add("dark");
+            else html.classList.remove("dark");
 
-  </body>
+            // Set initial icon
+            toggleBtn.textContent = html.classList.contains("dark") ? "☀️" : "🌙";
+
+            // Toggle dark mode on click
+            toggleBtn.addEventListener("click", () => {
+                html.classList.toggle("dark");
+                localStorage.setItem("theme", html.classList.contains("dark") ? "dark" : "light");
+                toggleBtn.textContent = html.classList.contains("dark") ? "☀️" : "🌙";
+            });
+        }
+    </script>
+</body>
 </html>

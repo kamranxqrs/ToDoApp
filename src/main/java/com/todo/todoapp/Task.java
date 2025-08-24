@@ -5,17 +5,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+// This class represents a single task in this To-Do app
 @Entity
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Let the database handle the ID automatically
     private Long id;
 
-    private String title;
-    private boolean completed;
+    private String title;      // The name or description of the task
+    private boolean completed; // Whether the task is done or not
 
-    // Getters and Setters
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -40,5 +41,3 @@ public class Task {
         this.completed = completed;
     }
 }
-
-
